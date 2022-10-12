@@ -1,4 +1,4 @@
-github.com/aymanbagabas/go-osc52 v1.0.4-0.20221012194018-cd7fdfe82bb8 h1:Wo7Ed/w3n0u0H4K06SDl+FuBF4+dO7AO456P42lxMYE=
-github.com/aymanbagabas/go-osc52 v1.0.4-0.20221012194018-cd7fdfe82bb8/go.mod h1:zT8H+Rk4VSabYN90pWyugflM3ZhpTZNC7cASDfUCdT4=
+github.com/aymanbagabas/go-osc52 v1.2.0 h1:y4lxy5qmZh7hsLj9EOgMCk2qsPE+e5bOQ8EiLy77b3E=
+github.com/aymanbagabas/go-osc52 v1.2.0/go.mod h1:zT8H+Rk4VSabYN90pWyugflM3ZhpTZNC7cASDfUCdT4=
 github.com/spf13/pflag v1.0.5 h1:iy+VFUOCP1a+8yFto/drg2CJ5u0yRoB7fZw3DKv/JXA=
 github.com/spf13/pflag v1.0.5/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An2Bg=
