@@ -61,7 +61,7 @@ func main() {
 	var str string
 	args := pflag.Args()
 	// read from stdin if no arguments are provided and we are not clearing the
-	// clipboard
+	// clipboard or reading the clipboard contents.
 	if len(args) == 0 && !*clear {
 		reader := bufio.NewReader(os.Stdin)
 		var b strings.Builder
@@ -84,10 +84,6 @@ func main() {
 		str = strings.Join(args, " ")
 	}
 
-	if *debug {
-		log.Printf("Input: %q", str)
-	}
-	term := strings.ToLower(*term)
 	clip := osc52.ClipboardC
 	if *primary {
 		clip = osc52.ClipboardP
@@ -95,10 +91,19 @@ func main() {
 	if *debug {
 		log.Printf("Clipboard: %v", clip)
 	}
+	term := strings.ToLower(*term)
+
+	if *debug {
+		log.Printf("Input: %q", str)
+	}
 	if strings.Contains(term, "kitty") {
 		// Flush the keyboard before copying, this is required for
 		// Kitty < 0.22.0.
-		os.Stdout.WriteString(osc52.Clear(term, clip))
+		clr := osc52.Clear(term, clip)
+		if *debug {
+			log.Printf("Clear: %q", clr)
+		}
+		os.Stderr.WriteString(clr)
 	}
 	// the sequence string to be sent to the terminal
 	seq := osc52.Sequence(str, term, clip)
@@ -107,5 +112,5 @@ func main() {
 	}
 
 	// send the sequence to the terminal
-	os.Stdout.WriteString(seq)
+	os.Stderr.WriteString(seq)
 }
