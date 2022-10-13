@@ -52,6 +52,8 @@ scoop bucket add aymanbagabas https://github.com/aymanbagabas/scoop-bucket.git
 scoop install aymanbagabas/shcopy
 ```
 
+You can also download the latest binaries and packages from the [releases page](https://github.com/aymanbagabas/shcopy/releases).
+
 ## Supported Terminals
 
 This is a non-exhaustive list of the status of popular terminal emulators regarding OSC52 [^1]:
