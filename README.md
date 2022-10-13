@@ -7,6 +7,22 @@
 
 **Sh**ell **Copy** is a simple utility that copies text to the clipboard from anywhere using [ANSI OSC52](https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Operating-System-Commands) sequence. It works with local terminals (/dev/tty*) and remote terminals (SSH, Telnet).
 
+## Example
+
+```sh
+# Copy command output to clipboard
+echo "Hello World" | shcopy
+
+# Copy file content to clipboard
+shcopy < file.txt
+
+# Copy from stdin until EOF
+shcopy # Ctrl+D to finish
+
+# Need help?
+shcopy --help
+```
+
 ## Installation
 
 ### Go Install
