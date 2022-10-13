@@ -65,7 +65,7 @@ func main() {
 	}
 
 	if *man {
-		manPage := mango.NewManPage(1, ProjectName, "Copy content to the system clipboard from any supported terminal using ANSI OSC 52 sequence.").
+		manPage := mango.NewManPage(1, ProjectName, "Copy text to the system clipboard from any supported terminal using ANSI OSC 52 sequence.").
 			WithLongDescription(ProjectName+" a utility that copies text to your clipboard from anywhere using ANSI OSC52 sequence.").
 			WithSection("Copyright", "(C) 2022 Ayman Bagabas.\n"+
 				"Released under MIT license.")
