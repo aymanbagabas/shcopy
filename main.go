@@ -9,6 +9,9 @@ import (
 	"strings"
 
 	"github.com/aymanbagabas/go-osc52"
+	"github.com/muesli/mango"
+	mpflag "github.com/muesli/mango-pflag"
+	"github.com/muesli/roff"
 	"github.com/spf13/pflag"
 )
 
@@ -23,6 +26,7 @@ var (
 	version = pflag.BoolP("version", "v", false, "Print version and exit.")
 	help    = pflag.BoolP("help", "h", false, "Print help and exit.")
 	debug   = pflag.BoolP("debug", "d", false, "Print debug information.")
+	man     = pflag.Bool("man", false, "Generate man pages.")
 )
 
 func usage(isError bool) {
@@ -47,6 +51,8 @@ func main() {
 		usage(true)
 	}
 	pflag.Parse()
+	pflag.Lookup("debug").Hidden = true
+	pflag.Lookup("man").Hidden = true
 
 	if *version {
 		fmt.Printf("%s version %s (%s)", ProjectName, Version, CommitSHA)
@@ -55,6 +61,17 @@ func main() {
 
 	if *help {
 		usage(false)
+		os.Exit(0)
+	}
+
+	if *man {
+		manPage := mango.NewManPage(1, ProjectName, "Copy content to the system clipboard from any supported terminal using ANSI OSC 52 sequence.").
+			WithLongDescription(ProjectName+" a utility that copies text to your clipboard from anywhere using ANSI OSC52 sequence.").
+			WithSection("Copyright", "(C) 2022 Ayman Bagabas.\n"+
+				"Released under MIT license.")
+
+		pflag.VisitAll(mpflag.PFlagVisitor(manPage))
+		fmt.Println(manPage.Build(roff.NewDocument()))
 		os.Exit(0)
 	}
 
