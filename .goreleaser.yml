@@ -5,6 +5,9 @@ env:
 before:
   hooks:
     - go mod tidy
+    - rm -rf manpages
+    - mkdir manpages
+    - sh -c 'go run . --man | gzip -c >./manpages/{{ .ProjectName }}.1.gz'
 builds:
   -
     ldflags: -s -w -X main.ProjectName={{ .ProjectName }} -X main.Version=v{{ .Version }} -X main.CommitSHA={{ .ShortCommit }}
@@ -44,6 +47,7 @@ archives:
     files:
       - README*
       - LICENSE*
+      - manpages/*
 
 nfpms:
   -
@@ -56,6 +60,9 @@ nfpms:
       - deb
       - rpm
     bindir: /usr/bin
+    contents:
+      - src: ./manpages/{{ .ProjectName }}.1.gz
+        dst: /usr/share/man/man1/{{ .ProjectName }}.1.gz
 
 brews:
   - tap:
@@ -67,6 +74,9 @@ brews:
       email: 'ayman.bagabas@gmail.com'
     homepage: 'https://aymanbagabas.com/'
     description: 'Copy text to clipboard from anywhere using ANSI OSC 52 sequence'
+    install: |-
+      bin.install "{{ .ProjectName }}"
+      man1.install "manpages/{{ .ProjectName }}.1.gz"
 
 checksum:
   name_template: 'checksums.txt'
