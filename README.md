@@ -21,6 +21,24 @@ go install github.com/aymanbagabas/shcopy@latest
 brew install aymanbagabas/tap/shcopy
 ```
 
+### Debian/Ubuntu
+
+```sh
+echo 'deb [trusted=yes] https://repo.aymanbagabas.com/apt/ /' | sudo tee /etc/apt/sources.list.d/aymanbagabas.list
+sudo apt update && sudo apt install shcopy
+```
+
+# Fedora
+
+```sh
+echo '[aymanbagabas]
+name=Ayman Bagabas
+baseurl=https://repo.aymanbagabas.com/yum/
+enabled=1
+gpgcheck=0' | sudo tee /etc/yum.repos.d/aymanbagabas.repo
+sudo yum install shcopy
+```
+
 ## Supported Terminals
 
 This is a non-exhaustive list of the status of popular terminal emulators regarding OSC52 [^1]:
