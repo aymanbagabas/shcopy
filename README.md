@@ -2,7 +2,7 @@
 
 <p>
     <a href="https://github.com/aymanbagabas/shcopy/actions"><img src="https://github.com/aymanbagabas/shcopy/workflows/build/badge.svg" alt="Build Status"></a>
-    <a href="https://github.com/aymanbagabas/go-osc52/releases"><img src="https://img.shields.io/github/release/aymanbagabas/go-osc52.svg" alt="Latest Release"></a>
+    <a href="https://github.com/aymanbagabas/shcopy/releases"><img src="https://img.shields.io/github/release/aymanbagabas/shcopy.svg" alt="Latest Release"></a>
 </p>
 
 **Sh**ell **Copy** is a simple utility that copies text to the clipboard from anywhere using [ANSI OSC52](https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Operating-System-Commands) sequence. It works with local terminals (/dev/tty*) and remote terminals (SSH, Telnet).
@@ -28,7 +28,7 @@ echo 'deb [trusted=yes] https://repo.aymanbagabas.com/apt/ /' | sudo tee /etc/ap
 sudo apt update && sudo apt install shcopy
 ```
 
-# Fedora
+### Fedora
 
 ```sh
 echo '[aymanbagabas]
