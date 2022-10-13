@@ -40,7 +40,17 @@ sudo yum install shcopy
 ```
 
 ### Arch Linux
+
+```sh
 yay -S shcopy-bin
+```
+
+### Scoop (Windows)
+
+```sh
+scoop bucket add aymanbagabas https://github.com/aymanbagabas/scoop-bucket.git
+scoop install aymanbagabas/shcopy
+```
 
 ## Supported Terminals
 
