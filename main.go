@@ -101,9 +101,9 @@ func main() {
 		str = strings.Join(args, " ")
 	}
 
-	clip := osc52.ClipboardC
+	clip := osc52.SystemClipboard
 	if *primary {
-		clip = osc52.ClipboardP
+		clip = osc52.PrimaryClipboard
 	}
 	if *debug {
 		log.Printf("Clipboard: %v", clip)
