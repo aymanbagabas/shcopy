@@ -5,7 +5,21 @@
     <a href="https://github.com/aymanbagabas/go-osc52/releases"><img src="https://img.shields.io/github/release/aymanbagabas/go-osc52.svg" alt="Latest Release"></a>
 </p>
 
-`shcopy` is a simple command that copies text to the clipboard from anywhere using [ANSI OSC52](https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Operating-System-Commands) sequence.
+**Sh**ell **Copy** is a simple utility that copies text to the clipboard from anywhere using [ANSI OSC52](https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Operating-System-Commands) sequence. It works with local terminals (/dev/tty*) and remote terminals (SSH, Telnet).
+
+## Installation
+
+### Go Install
+
+```sh
+go install github.com/aymanbagabas/shcopy@latest
+```
+
+### Homebrew
+
+```sh
+brew install aymanbagabas/tap/shcopy
+```
 
 ## Supported Terminals
 
@@ -46,20 +60,6 @@ or use the following if you have `set-clipboard on` in your `~/.tmux.conf`:
 ```sh
 # set the terminal to default
 echo "Hello, World!" | shcopy -t default
-```
-
-## Installation
-
-### Go Install
-
-``sh
-go install github.com/aymanbagabas/shcopy@latest
-``
-
-### Homebrew
-
-```sh
-brew install aymanbagabas/tap/shcopy
 ```
 
 ## Credits
