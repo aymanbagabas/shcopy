@@ -39,6 +39,9 @@ gpgcheck=0' | sudo tee /etc/yum.repos.d/aymanbagabas.repo
 sudo yum install shcopy
 ```
 
+### Arch Linux
+yay -S shcopy-bin
+
 ## Supported Terminals
 
 This is a non-exhaustive list of the status of popular terminal emulators regarding OSC52 [^1]:
