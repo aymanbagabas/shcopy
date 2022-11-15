@@ -7,6 +7,8 @@
 
 **Sh**ell **Copy** is a simple utility that copies text to the clipboard from anywhere using [ANSI OSC52](https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Operating-System-Commands) sequence. It works with local terminals (/dev/tty*) and remote terminals (SSH, Telnet).
 
+Think of this as a tool like `xclip` or `pbcopy` but also works over SSH.
+
 ## Example
 
 ```sh
