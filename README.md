@@ -107,18 +107,26 @@ This is a non-exhaustive list of the status of popular terminal emulators regard
 
 ### Tmux
 
-Starting with tmux 3.3, the `allow-passthrough` option is disabled by default. This means that `shcopy` will not work in tmux by default. To enable it, add the following to your tmux config:
+To use shcopy within a tmux session, make sure that the outer terminal supports
+OSC 52, and use one of the following options:
 
-```tmux
-set -g allow-passthrough on
-```
+1. Configure tmux to allow programs to access the clipboard (recommended). The
+   tmux `set-clipboard` option was added in tmux 1.5 with a default of `on`;
+   the default was changed to `external` when `external` was added in tmux 2.6.
+   Setting `set-clipboard` to `on` allows external programs in tmux to access
+   the clipboard. To enable this option, add `set -s set-clipboard on` to your
+   tmux config.
 
-or use the following if you have `set-clipboard on` in your `~/.tmux.conf`:
+2. Use `--term tmux` option to force shcopy to work with tmux. This option
+   requires the `allow-passthrough` option to be enabled in tmux. Starting with
+   tmux 3.3a, the `allow-passthrough` option is no longer enabled by default.
+   This option allows tmux to pass an ANSI escape sequence to the outer
+   terminal by wrapping it in another special tmux escape sequence. This means
+   the `--term tmux` option won't work unless you're running an older version
+   of tmux or you have enabled `allow-passthrough` in tmux. Add the following
+   to your tmux config to enable passthrough `set -g allow-passthrough on`.
 
-```sh
-# set the terminal to default
-echo "Hello, World!" | shcopy -t default
-```
+Refer to https://github.com/tmux/tmux/wiki/Clipboard for more info.
 
 ## Credits
 
