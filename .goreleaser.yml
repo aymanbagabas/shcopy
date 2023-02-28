@@ -27,14 +27,11 @@ builds:
       - riscv64
     goarm:
       - "7"
-      - "6"
     ignore:
       - goos: windows
         goarch: arm64
       - goos: windows
         goarm: "7"
-      - goos: windows
-        goarm: "6"
 
 archives:
   -
