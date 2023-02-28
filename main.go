@@ -20,9 +20,7 @@ var (
 	Version     = "unknown"
 	CommitSHA   = "build from source"
 
-	term = pflag.StringP("term", "t", "", "Terminal type: (default), tmux, screen.\n"+
-		"Note: starting with tmux 3.3a, tmux users won't need to set this option.\n"+
-		"Refer to the man page for more information.")
+	term    = pflag.StringP("term", "t", "", "Terminal type: (default), tmux, screen.")
 	clear   = pflag.BoolP("clear", "c", false, "Clear the clipboard and exit.")
 	primary = pflag.BoolP("primary", "p", false, "Use the primary clipboard instead system clipboard.")
 	version = pflag.BoolP("version", "v", false, "Print version and exit.")
@@ -68,7 +66,28 @@ func main() {
 
 	if *man {
 		manPage := mango.NewManPage(1, ProjectName, "Copy text to the system clipboard from any supported terminal using ANSI OSC 52 sequence.").
-			WithLongDescription(ProjectName+" a utility that copies text to your clipboard from anywhere using ANSI OSC52 sequence.").
+			WithLongDescription(ProjectName+" a utility that copies text to your clipboard from anywhere using ANSI OSC 52 sequence.").
+			WithSection("Terminal", "shcopy should work in any terminal that supports OSC 52. There are some exceptions below.").
+			WithSection("Kitty", `
+Kitty, version 0.22.0 and below, had a bug where it appends to the clipboard instead of replacing it. To workaround this bug, clear the clipboard before copying any text.
+
+shcopy -c; shcopy "Hello World"
+`,
+			).
+			WithSection("Screen", `
+To use shcopy within a screen session, make sure that the outer terminal supports OSC 52. If your '$TERM' environment variable is not set to 'screen-*', use '--term screen' to force shcopy to work with screen.
+`,
+			).
+			WithSection("Tmux", `
+To use shcopy within a tmux session, make sure that the outer terminal supports OSC 52, and use one of the following options:
+
+1. Configure tmux to allow programs to access the clipboard (recommended). The tmux 'set-clipboard' option was added in tmux 1.5 with a default of 'on'; the default was changed to 'external' when 'external' was added in tmux 2.6. Setting 'set-clipboard' to 'on' allows external programs in tmux to access the clipboard. To enable this option, add 'set -s set-clipboard on' to your tmux config.
+
+2. Use '--term tmux' option to force shcopy to work with tmux. This option requires the 'allow-passthrough' option to be enabled in tmux. Starting with tmux 3.3a, the 'allow-passthrough' option is no longer enabled by default. This option allows tmux to pass an ANSI escape sequence to the outer terminal by wrapping it in another special tmux escape sequence. This means the '--term tmux' option won't work unless you're running an older version of tmux or you have enabled 'allow-passthrough' in tmux. Add the following to your tmux config to enable passthrough 'set -g allow-passthrough on'.
+
+Refer to https://github.com/tmux/tmux/wiki/Clipboard for more info.
+`,
+			).
 			WithSection("Bugs", "Report bugs to https://github.com/aymanbagabas/shcopy/issues").
 			WithSection("Copyright", "(C) 2023 Ayman Bagabas.\n"+
 				"Released under MIT license.")
