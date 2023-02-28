@@ -12,14 +12,21 @@ Think of this as a tool like `xclip` or `pbcopy` but also works over SSH.
 ## Example
 
 ```sh
+# Copy text to clipboard
+shcopy "Hello World"
+
+# Copy text to primary clipboard (X11)
+shcopy -p "Hello World"
+
 # Copy command output to clipboard
-echo "Hello World" | shcopy
+echo -n "Hello World" | shcopy
 
 # Copy file content to clipboard
 shcopy < file.txt
 
 # Copy from stdin until EOF
-shcopy # Ctrl+D to finish
+# Ctrl+D to finish
+shcopy
 
 # Need help?
 shcopy --help

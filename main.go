@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/aymanbagabas/go-osc52"
+	"github.com/aymanbagabas/go-osc52/v2"
 	"github.com/muesli/mango"
 	mpflag "github.com/muesli/mango-pflag"
 	"github.com/muesli/roff"
@@ -20,8 +20,10 @@ var (
 	Version     = "unknown"
 	CommitSHA   = "build from source"
 
-	term    = pflag.StringP("term", "t", os.Getenv("TERM"), "Terminal type: screen, tmux, etc.")
-	clear   = pflag.BoolP("clear", "c", false, "Clear the clipboard.")
+	term = pflag.StringP("term", "t", "", "Terminal type: (default), tmux, screen.\n"+
+		"Note: starting with tmux 3.3a, tmux users won't need to set this option.\n"+
+		"Refer to the man page for more information.")
+	clear   = pflag.BoolP("clear", "c", false, "Clear the clipboard and exit.")
 	primary = pflag.BoolP("primary", "p", false, "Use the primary clipboard instead system clipboard.")
 	version = pflag.BoolP("version", "v", false, "Print version and exit.")
 	help    = pflag.BoolP("help", "h", false, "Print help and exit.")
@@ -56,23 +58,24 @@ func main() {
 
 	if *version {
 		fmt.Printf("%s version %s (%s)", ProjectName, Version, CommitSHA)
-		os.Exit(0)
+		return
 	}
 
 	if *help {
 		usage(false)
-		os.Exit(0)
+		return
 	}
 
 	if *man {
 		manPage := mango.NewManPage(1, ProjectName, "Copy text to the system clipboard from any supported terminal using ANSI OSC 52 sequence.").
 			WithLongDescription(ProjectName+" a utility that copies text to your clipboard from anywhere using ANSI OSC52 sequence.").
-			WithSection("Copyright", "(C) 2022 Ayman Bagabas.\n"+
+			WithSection("Bugs", "Report bugs to https://github.com/aymanbagabas/shcopy/issues").
+			WithSection("Copyright", "(C) 2023 Ayman Bagabas.\n"+
 				"Released under MIT license.")
 
 		pflag.VisitAll(mpflag.PFlagVisitor(manPage))
 		fmt.Println(manPage.Build(roff.NewDocument()))
-		os.Exit(0)
+		return
 	}
 
 	var str string
@@ -90,7 +93,7 @@ func main() {
 			}
 			_, err = b.WriteRune(r)
 			if err != nil {
-				fmt.Printf("Failed to write rune: %v", err)
+				fmt.Fprintf(os.Stderr, "Failed to write rune: %v", err)
 				os.Exit(1)
 			}
 		}
@@ -101,33 +104,39 @@ func main() {
 		str = strings.Join(args, " ")
 	}
 
-	clip := osc52.SystemClipboard
-	if *primary {
-		clip = osc52.PrimaryClipboard
-	}
-	if *debug {
-		log.Printf("Clipboard: %v", clip)
-	}
-	term := strings.ToLower(*term)
-
-	if *debug {
-		log.Printf("Input: %q", str)
-	}
-	if strings.Contains(term, "kitty") {
-		// Flush the keyboard before copying, this is required for
-		// Kitty < 0.22.0.
-		clr := osc52.Clear(term, clip)
-		if *debug {
-			log.Printf("Clear: %q", clr)
-		}
-		os.Stderr.WriteString(clr)
-	}
 	// the sequence string to be sent to the terminal
-	seq := osc52.Sequence(str, term, clip)
+	seq := osc52.New(str)
+
+	if *primary {
+		seq = seq.Primary()
+	}
+
+	// Detect `screen` terminal type
+	if term := os.Getenv("TERM"); term != "" {
+		if strings.HasPrefix(term, "screen") {
+			seq = seq.Screen()
+		}
+	}
+
+	if *term != "" {
+		switch strings.ToLower(*term) {
+		case "screen":
+			seq = seq.Screen()
+		case "tmux":
+			seq = seq.Tmux()
+		default:
+			seq = seq.Mode(osc52.DefaultMode)
+		}
+	}
+
+	if *clear {
+		seq = seq.Clear()
+	}
+
 	if *debug {
 		log.Printf("Sequence: %q", seq)
 	}
 
 	// send the sequence to the terminal
-	os.Stderr.WriteString(seq)
+	_, _ = seq.WriteTo(os.Stderr)
 }
