@@ -13,6 +13,7 @@ import (
 	mpflag "github.com/muesli/mango-pflag"
 	"github.com/muesli/roff"
 	"github.com/spf13/pflag"
+	"golang.org/x/sys/unix"
 )
 
 var (
@@ -22,6 +23,7 @@ var (
 
 	term    = pflag.StringP("term", "t", "", "Terminal type: (default), tmux, screen.")
 	clear   = pflag.BoolP("clear", "c", false, "Clear the clipboard and exit.")
+	read    = pflag.BoolP("read", "r", false, "Read the clipboard contents and exit.")
 	primary = pflag.BoolP("primary", "p", false, "Use the primary clipboard instead system clipboard.")
 	version = pflag.BoolP("version", "v", false, "Print version and exit.")
 	help    = pflag.BoolP("help", "h", false, "Print help and exit.")
@@ -97,11 +99,16 @@ Refer to https://github.com/tmux/tmux/wiki/Clipboard for more info.
 		return
 	}
 
+	if *clear && *read {
+		fmt.Fprintf(os.Stderr, "Cannot clear and read the clipboard at the same time.")
+		os.Exit(1)
+	}
+
 	var str string
 	args := pflag.Args()
 	// read from stdin if no arguments are provided and we are not clearing the
 	// clipboard or reading the clipboard contents.
-	if len(args) == 0 && !*clear {
+	if len(args) == 0 && !(*clear || *read) {
 		reader := bufio.NewReader(os.Stdin)
 		var b strings.Builder
 
@@ -152,10 +159,101 @@ Refer to https://github.com/tmux/tmux/wiki/Clipboard for more info.
 		seq = seq.Clear()
 	}
 
+	if *read {
+		seq = seq.Query()
+	}
+
 	if *debug {
 		log.Printf("Sequence: %q", seq)
 	}
 
 	// send the sequence to the terminal
 	_, _ = seq.WriteTo(os.Stderr)
+
+	if *read {
+		fd := int(os.Stderr.Fd())
+		t, err := unix.IoctlGetTermios(fd, tcgetattr)
+		if err != nil {
+			return
+		}
+		defer unix.IoctlSetTermios(fd, tcsetattr, t) //nolint:errcheck
+
+		noecho := *t
+		noecho.Lflag = noecho.Lflag &^ unix.ECHO
+		noecho.Lflag = noecho.Lflag &^ unix.ICANON
+		if err := unix.IoctlSetTermios(fd, tcsetattr, &noecho); err != nil {
+			return
+		}
+		r, err := readNextResponse(os.Stderr)
+		fmt.Printf("resp: %q, err: %s", r, err)
+	}
+}
+
+const (
+	tcgetattr = unix.TIOCGETA
+	tcsetattr = unix.TIOCSETA
+)
+
+func readNextByte(f *os.File) (byte, error) {
+
+	var b [1]byte
+	n, err := f.Read(b[:])
+	if err != nil {
+		return 0, err
+	}
+
+	if n == 0 {
+		panic("read returned no data")
+	}
+
+	return b[0], nil
+}
+
+const (
+	ESC = '\x1b'
+	BEL = '\x07'
+)
+
+// readNextResponse reads either an OSC response or a cursor position response:
+//   - OSC response: "\x1b]11;rgb:1111/1111/1111\x1b\\"
+//   - cursor position response: "\x1b[42;1R"
+func readNextResponse(f *os.File) (response string, err error) {
+	start, err := readNextByte(f)
+	if err != nil {
+		return "", err
+	}
+
+	// first byte must be ESC
+	for start != ESC {
+		start, err = readNextByte(f)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	response += string(start)
+
+	// next byte is should be ']' (OSC response)
+	tpe, err := readNextByte(f)
+	if err != nil {
+		return "", err
+	}
+
+	response += string(tpe)
+	if tpe != ']' {
+		return "", fmt.Errorf("unknown response")
+	}
+
+	for {
+		b, err := readNextByte(f)
+		if err != nil {
+			return "", err
+		}
+
+		response += string(b)
+		// OSC can be terminated by BEL (\a) or ST (ESC)
+		if b == BEL || strings.HasSuffix(response, string(ESC)) {
+			return response, nil
+		}
+	}
 }
