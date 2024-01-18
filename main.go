@@ -147,7 +147,11 @@ func main() {
 	// Detect `screen` terminal type
 	if term := os.Getenv("TERM"); term != "" {
 		if strings.HasPrefix(term, "screen") {
-			seq = seq.Screen()
+			if sty := os.Getenv("STY"); sty != "" {
+				// only when `STY` has been set
+				// it's normal to see `TERM` is `screen` in tmux
+				seq = seq.Screen()
+			}
 		}
 	}
 
