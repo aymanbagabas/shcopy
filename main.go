@@ -55,7 +55,7 @@ func main() {
 	pflag.Lookup("man").Hidden = true
 
 	if *version {
-		fmt.Printf("%s version %s (%s)", ProjectName, Version, CommitSHA)
+		fmt.Printf("%s version %s (%s)\n", ProjectName, Version, CommitSHA)
 		return
 	}
 
