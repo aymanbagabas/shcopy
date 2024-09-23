@@ -1,3 +1,7 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema-pro.json
+
+version: 2
+
 project_name: shcopy
 env:
   - GO111MODULE=on
@@ -9,8 +13,7 @@ before:
     - mkdir manpages
     - sh -c 'go run . --man | gzip -c >./manpages/{{ .ProjectName }}.1.gz'
 builds:
-  -
-    ldflags: -s -w -X main.ProjectName={{ .ProjectName }} -X main.Version=v{{ .Version }} -X main.CommitSHA={{ .ShortCommit }}
+  - ldflags: -s -w -X main.ProjectName={{ .ProjectName }} -X main.Version=v{{ .Version }} -X main.CommitSHA={{ .ShortCommit }}
     goos:
       - linux
       - darwin
@@ -34,23 +37,32 @@ builds:
         goarm: "7"
 
 archives:
-  -
-    format_overrides:
+  - format_overrides:
       - goos: windows
         format: zip
-    replacements:
-      windows: Windows
-      darwin: Darwin
-      386: i386
-      amd64: x86_64
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- with .Arm}}v{{ . }}{{ end }}
     files:
       - README*
       - LICENSE*
       - manpages/*
 
+nix:
+  - repository:
+      owner: aymanbagabas
+      name: nur
+    homepage: "https://github.com/aymanbagabas/{{ .ProjectName }}"
+    description: "Copy text to clipboard from anywhere using ANSI OSC 52 sequence"
+    license: mit
+
 nfpms:
-  -
-    vendor: aymanbagabas
+  - vendor: aymanbagabas
     homepage: "https://github.com/aymanbagabas/shcopy"
     maintainer: "Ayman Bagabas <ayman.bagabas@gmail.com>"
     description: "Copy text to clipboard from anywhere using ANSI OSC 52 sequence"
@@ -64,28 +76,27 @@ nfpms:
         dst: /usr/share/man/man1/{{ .ProjectName }}.1.gz
 
 brews:
-  - tap:
-      owner: 'aymanbagabas'
+  - repository:
+      owner: "aymanbagabas"
       name: homebrew-tap
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     commit_author:
-      name: 'Ayman Bagabas'
-      email: 'ayman.bagabas@gmail.com'
-    homepage: 'https://github.com/aymanbagabas/shcopy'
-    description: 'Copy text to clipboard from anywhere using ANSI OSC 52 sequence'
+      name: "Ayman Bagabas"
+      email: "ayman.bagabas@gmail.com"
+    homepage: "https://github.com/aymanbagabas/shcopy"
+    description: "Copy text to clipboard from anywhere using ANSI OSC 52 sequence"
     install: |-
       bin.install "{{ .ProjectName }}"
       man1.install "manpages/{{ .ProjectName }}.1.gz"
 
-
 aurs:
-  - maintainers: ['Ayman Bagabas <ayman.bagabas@gmail.com>']
-    description: 'Copy text to clipboard from anywhere using ANSI OSC 52 sequence'
-    name: '{{ .ProjectName }}-bin'
-    homepage: 'https://github.com/aymanbagabas/shcopy'
+  - maintainers: ["Ayman Bagabas <ayman.bagabas@gmail.com>"]
+    description: "Copy text to clipboard from anywhere using ANSI OSC 52 sequence"
+    name: "{{ .ProjectName }}-bin"
+    homepage: "https://github.com/aymanbagabas/shcopy"
     license: MIT
-    private_key: '{{ .Env.AUR_KEY }}'
-    git_url: 'ssh://aur@aur.archlinux.org/{{ .ProjectName }}-bin.git'
+    private_key: "{{ .Env.AUR_KEY }}"
+    git_url: "ssh://aur@aur.archlinux.org/{{ .ProjectName }}-bin.git"
     package: |-
       # bin
       install -Dm755 "./{{ .ProjectName }}" "${pkgdir}/usr/bin/{{ .ProjectName }}"
@@ -95,20 +106,20 @@ aurs:
       # man pages
       install -Dm644 "./manpages/{{ .ProjectName }}.1.gz" "${pkgdir}/usr/share/man/man1/{{ .ProjectName }}.1.gz"
 
-scoop:
-  bucket:
-    owner: aymanbagabas
-    name: scoop-bucket
-    token: "{{ .Env.SCOOP_TAP_GITHUB_TOKEN }}"
-  commit_author:
-    name: 'Ayman Bagabas'
-    email: 'ayman.bagabas@gmail.com'
-  homepage: 'https://github.com/aymanbagabas/shcopy'
-  description: 'Copy text to clipboard from anywhere using ANSI OSC 52 sequence'
-  license: MIT
+scoops:
+  - repository:
+      owner: aymanbagabas
+      name: scoop-bucket
+      token: "{{ .Env.SCOOP_TAP_GITHUB_TOKEN }}"
+    commit_author:
+      name: "Ayman Bagabas"
+      email: "ayman.bagabas@gmail.com"
+    homepage: "https://github.com/aymanbagabas/shcopy"
+    description: "Copy text to clipboard from anywhere using ANSI OSC 52 sequence"
+    license: MIT
 
 checksum:
-  name_template: 'checksums.txt'
+  name_template: "checksums.txt"
 
 source:
   enabled: true
